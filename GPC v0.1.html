@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Glamuxe Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'IBM Plex Sans Arabic', sans-serif;
+      background-color: #f4f7fa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      background-color: #7b1f30;
+      padding: 8px;
+      text-align: center;
+    }
+    .header img {
+      height: 42px;
+    }
+    .container {
+      max-width: 420px;
+      margin: 28px auto;
+      padding: 0 16px;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: block;
+      font-size: 16px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #fff;
+      text-align: right;
+      -webkit-text-size-adjust: none;
+    }
+    button {
+      background-color: #7b1f30;
+      color: white;
+      font-size: 16px;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      width: 100%;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    button:hover {
+      background-color: #5a1524;
+    }
+    .reset-btn {
+      background-color: #999;
+      margin-top: 8px;
+    }
+    .result {
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 24px;
+      font-size: 16px;
+      line-height: 1.9;
+    }
+    .sar-icon {
+      width: 18px;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <img src="https://i.postimg.cc/ZKHHgt82/IMG-7550.png" alt="شعار غلامكس">
+</div>
+
+<div class="container">
+  <div class="form-group">
+    <label>سعر القطعة <img class="sar-icon" src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="SAR"></label>
+    <input type="text" style="width: 100%; box-sizing: border-box;" id="cost" placeholder="مثال: 100.00" inputmode="decimal">
+  </div>
+
+  <div class="form-group">
+    <label style="white-space: nowrap;">تمارا (%)</label>
+    <input type="text" style="width: 100%; box-sizing: border-box;" id="tamara" placeholder="مثال: 2.75" inputmode="decimal">
+  </div>
+
+  <div class="form-group">
+    <label>نسبة المدفوعات الرقمية (%)</label>
+    <input type="text" style="width: 100%; box-sizing: border-box;" id="digital" placeholder="مثال: 2.00" inputmode="decimal">
+  </div>
+
+  <div class="form-group">
+    <label>نسبة الربح (%)</label>
+    <input type="text" style="width: 100%; box-sizing: border-box;" id="profit" placeholder="مثال: 25.00" inputmode="decimal">
+  </div>
+
+  <div class="form-group">
+    <label>التكاليف التشغيلية <img class="sar-icon" src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="SAR"></label>
+    <input type="text" style="width: 100%; box-sizing: border-box;" id="ops" placeholder="مثال: 15.00" inputmode="decimal">
+  </div>
+
+  <div style="display: flex; justify-content: space-between; gap: 8px; margin-top: 12px;">
+    <button onclick="calculate()" style="flex:1; background-color:#7b1f30; padding: 12px; display: flex; align-items: center; justify-content: center;">
+      حساب
+    </button>
+    <button class="reset-btn" onclick="resetFields()" style="flex:1; background-color:#999; padding: 12px; display: flex; align-items: center; justify-content: center;">
+      مسح
+    </button>
+  </div>
+
+  
+    <div class="result" id="result"></div>
+    <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+      <button onclick="printResult()" style="background-color:#444;">طباعة النتيجة</button>
+      <button onclick="copyResult()" style="background-color:#555;">نسخ النتيجة</button>
+      
+    </div>
+    
+</div>
+
+<script>
+function parseFloatSafe(value) {
+  if (!value) return 0;
+  return parseFloat(value.replace(',', '.')) || 0;
+}
+
+function calculate() {
+  const cost = parseFloatSafe(document.getElementById("cost").value);
+  const tamara = parseFloatSafe(document.getElementById("tamara").value);
+  const digital = parseFloatSafe(document.getElementById("digital").value);
+  const profit = parseFloatSafe(document.getElementById("profit").value);
+  const ops = parseFloatSafe(document.getElementById("ops").value);
+
+  if (isNaN(cost) || cost <= 0) {
+    document.getElementById("result").innerHTML = "رجاءً أدخل سعر القطعة بشكل صحيح.";
+    return;
+  }
+
+  const profitVal = cost * (profit / 100);
+  const tamaraFee = cost * (tamara / 100);
+  const digitalFee = cost * (digital / 100);
+  const total = cost + profitVal + tamaraFee + digitalFee + ops;
+  const netAfterTamara = total - (total * (tamara / 100));
+  const netProfit = netAfterTamara - cost;
+
+  document.getElementById("result").innerHTML = `
+    <strong>تفاصيل التسعير:</strong><br>
+    - سعر القطعة: ${cost.toFixed(2)} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="SAR" style="width: 14px; vertical-align: middle;"><br>
+    - ربحك: ${profitVal.toFixed(2)} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="SAR" style="width: 14px; vertical-align: middle;"><br>
+    - رسوم تمارا (${tamara}%): ${tamaraFee.toFixed(2)} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="SAR" style="width: 14px; vertical-align: middle;"><br>
+    - رسوم المدفوعات الرقمية (${digital}%): ${digitalFee.toFixed(2)} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="SAR" style="width: 14px; vertical-align: middle;"><br>
+    - التكاليف التشغيلية: ${ops.toFixed(2)} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="SAR" style="width: 14px; vertical-align: middle;"><br>
+    <hr>
+    <strong>قيمة البضاعة النهائية: ${total.toFixed(2)} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="SAR" style="width: 14px; vertical-align: middle;"></strong><br>
+    <strong>الصافي بعد خصم رسوم تمارا: ${netAfterTamara.toFixed(2)} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="SAR" style="width: 14px; vertical-align: middle;"></strong><br>
+    <strong>صافي الربح: ${netProfit.toFixed(2)} <img src="https://www.sama.gov.sa/ar-sa/Currency/Documents/Saudi_Riyal_Symbol-2.svg" alt="SAR" style="width: 14px; vertical-align: middle;"></strong>
+  `;
+}
+
+function resetFields() {
+  document.getElementById("cost").value = '';
+  document.getElementById("tamara").value = '';
+  document.getElementById("digital").value = '';
+  document.getElementById("profit").value = '';
+  document.getElementById("ops").value = '';
+  document.getElementById("result").innerHTML = '';
+}
+
+  function printResult() {
+    const content = document.getElementById("result").innerHTML;
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write('<html><head><title>تفاصيل التسعير</title></head><body style="font-family: IBM Plex Sans Arabic;">');
+    printWindow.document.write(content);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+  }
+
+  function copyResult() {
+    const text = document.getElementById("result").innerText;
+    navigator.clipboard.writeText(text).then(() => alert("تم نسخ النتيجة"));
+  }
+
+  function shareWhatsApp() {
+    const text = encodeURIComponent(document.getElementById("result").innerText);
+    window.open("https://wa.me/?text=" + text, "_blank");
+  }
+</script>
+
+
+</body>
+</html>
